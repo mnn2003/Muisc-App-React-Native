@@ -1,0 +1,47 @@
+name: Build React Native Android App
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger the workflow on pull requests to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16  # Use Node.js 16 (or the version your app requires)
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          npm install -g yarn  # Install Yarn globally (if you use Yarn)
+          yarn install         # Install project dependencies
+
+      # Step 4: Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+
+      # Step 5: Build the Android APK
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleRelease  # Build the release APK
+
+      # Step 6: Upload the APK as an artifact
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.apk
+          path: android/app/build/outputs/apk/release/app-release.apk  # Path to the generated APK
